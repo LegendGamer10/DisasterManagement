@@ -1,0 +1,14 @@
+{
+  "name": "ai-disaster-detection-system",
+  "version": "1.0.0",
+  "description": "Full-stack AI-powered disaster detection prototype",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2"
+  }
+}

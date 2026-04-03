@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Disaster Detection System</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>AI-Powered Disaster Detection</h1>
+
+    <section class="card">
+      <h2>Analyze New Report</h2>
+      <form id="analyzeForm">
+        <label for="reportInput">Disaster Report Text</label>
+        <textarea id="reportInput" required placeholder="Describe what is happening..."></textarea>
+
+        <label for="imageInput">Optional Image</label>
+        <input id="imageInput" type="file" accept="image/*" />
+
+        <label for="locationInput">Location</label>
+        <input id="locationInput" type="text" placeholder="City, address, or landmark" required />
+
+        <button type="submit">Submit</button>
+      </form>
+      <p id="imageInfo" class="helper"></p>
+    </section>
+
+    <section class="card" id="resultCard" hidden>
+      <h2>Analysis Result</h2>
+      <p><strong>Disaster Type:</strong> <span id="disasterType">-</span></p>
+      <p><strong>Risk Level:</strong> <span id="riskLevel" class="badge">-</span></p>
+      <p><strong>Confidence Score:</strong> <span id="confidence">-</span></p>
+      <p><strong>AI-generated Summary:</strong> <span id="summary">-</span></p>
+      <p><strong>Mapped Location:</strong> <span id="mappedLocation">-</span></p>
+      <p id="alertBanner" class="alert" hidden>🚨 Emergency Alert Generated</p>
+    </section>
+
+    <section class="card">
+      <h2>Incident Map</h2>
+      <div id="map"></div>
+    </section>
+
+    <section class="card">
+      <h2>Previous Reports Dashboard</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Report</th>
+            <th>Type</th>
+            <th>Risk</th>
+            <th>Confidence</th>
+            <th>Location</th>
+            <th>Image</th>
+          </tr>
+        </thead>
+        <tbody id="reportsTableBody">
+          <tr><td colspan="7" class="empty">No reports yet.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="app.js"></script>
+</body>
+</html>
