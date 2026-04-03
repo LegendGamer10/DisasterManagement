@@ -3,6 +3,8 @@ const reportInput = document.getElementById('reportInput');
 const imageInput = document.getElementById('imageInput');
 const imageInfo = document.getElementById('imageInfo');
 const locationInput = document.getElementById('locationInput');
+const checkAiBtn = document.getElementById('checkAiBtn');
+const aiStatusText = document.getElementById('aiStatusText');
 const resultCard = document.getElementById('resultCard');
 const disasterTypeEl = document.getElementById('disasterType');
 const riskLevelEl = document.getElementById('riskLevel');
@@ -71,9 +73,23 @@ async function loadReports() {
   renderReports(reports);
 }
 
+async function checkAIConnection() {
+  aiStatusText.textContent = 'Checking AI connection...';
+  const response = await fetch('/api/ai-status');
+  const data = await response.json();
+
+  if (data.ok) {
+    aiStatusText.textContent = `✅ ${data.reason}`;
+  } else {
+    aiStatusText.textContent = `⚠️ ${data.reason}`;
+  }
+}
+
 imageInput.addEventListener('change', () => {
   imageInfo.textContent = imageInput.files[0] ? `Selected image: ${imageInput.files[0].name}` : '';
 });
+
+checkAiBtn.addEventListener('click', checkAIConnection);
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -124,3 +140,4 @@ form.addEventListener('submit', async (event) => {
 });
 
 loadReports();
+checkAIConnection();

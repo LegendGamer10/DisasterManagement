@@ -1,5 +1,5 @@
 const express = require('express');
-const { analyzeDisasterText } = require('../services/ai');
+const { analyzeDisasterText, getAIStatus } = require('../services/ai');
 
 const router = express.Router();
 
@@ -38,6 +38,11 @@ router.post('/analyze', async (req, res) => {
 
 router.get('/reports', (req, res) => {
   res.json(reports);
+});
+
+router.get('/ai-status', async (req, res) => {
+  const status = await getAIStatus();
+  res.json(status);
 });
 
 module.exports = router;

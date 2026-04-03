@@ -13,6 +13,10 @@
 
     <section class="card">
       <h2>Analyze New Report</h2>
+      <div class="status-row">
+        <button id="checkAiBtn" type="button">Check AI Connection</button>
+        <span id="aiStatusText" class="helper">AI status not checked yet.</span>
+      </div>
       <form id="analyzeForm">
         <label for="reportInput">Disaster Report Text</label>
         <textarea id="reportInput" required placeholder="Describe what is happening..."></textarea>
