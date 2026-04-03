@@ -1,81 +1,80 @@
 # AI-Powered Disaster Detection System (Full-Stack Prototype)
 
-This project is a production-like hackathon prototype with this flow:
+## 🚀 Overview
 
-**Frontend (HTML/CSS/JS) → Backend (Node.js + Express) → AI API (OpenAI) → Storage (in-memory reports)**
+Manual disaster analysis is often slow and inefficient.  
+This project presents a **full-stack AI-powered disaster detection system prototype** that combines intelligent text analysis, backend processing, and real-time alerting.
 
-## Project Structure
+It is designed as a **hackathon-ready implementation** of a scalable real-world system.
 
-```
-/frontend
-  index.html
-  style.css
-  app.js
+---
 
-/backend
-  server.js
-  routes/
-    analyze.js
-  services/
-    ai.js
-```
+## 🏗️ Architecture
 
-## Features
+Frontend (HTML/CSS/JS) → Backend (Node.js + Express) → AI API → Storage
 
-- Submit disaster text reports from a clean web UI.
-- Backend API endpoint: `POST /api/analyze` with `{ "text": "..." }`.
-- AI-powered generalized disaster detection (any disaster type).
-- Structured response:
-  - `disaster_type`
-  - `risk_level` (`Low`, `Medium`, `High`)
-  - `confidence`
-  - `summary`
-- Fallback rule-based classification when AI is unavailable.
-- Dashboard listing previous reports with timestamps.
-- Emergency alert banner for high-risk reports.
+---
 
-## Setup
+## 🎯 Objectives
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+- Detect disasters faster using AI-based analysis  
+- Process unstructured text inputs intelligently  
+- Provide risk classification and alerts  
+- Demonstrate a scalable architecture for real-world deployment  
 
-2. (Optional but recommended) Set OpenAI API key:
-   ```bash
-   export OPENAI_API_KEY="your_key_here"
-   ```
+---
 
-3. Start server:
-   ```bash
-   npm start
-   ```
+## ⚙️ Features
 
-4. Open:
-   - `http://localhost:3000`
+### 🔹 1. AI-Based Disaster Detection
+- Accepts natural language input  
+- Detects **any disaster type (not keyword-limited)**  
+- Returns:
+  - Disaster Type  
+  - Risk Level (Low / Medium / High)  
+  - Confidence Score  
+  - AI-generated Summary  
 
-## API
+---
 
-### `POST /api/analyze`
-Request:
-```json
-{ "text": "Large wildfire is spreading quickly toward nearby homes." }
-```
+### 🔹 2. Backend API
+- Endpoint: `POST /api/analyze`
+- Processes input using AI
+- Includes fallback rule-based logic
 
-Response:
-```json
-{
-  "disaster_type": "Wildfire",
-  "risk_level": "High",
-  "confidence": "92%",
-  "summary": "Rapidly spreading wildfire threatening residential areas."
-}
-```
+---
 
-### `GET /api/reports`
-Returns previously analyzed reports stored in memory for this demo.
+### 🔹 3. Dashboard
+- Displays previous reports  
+- Shows timestamps and results  
+- Simulates real-time monitoring system  
 
-## Notes
+---
 
-- In-memory storage resets when server restarts.
-- To make this fully persistent, replace in-memory storage with Supabase/PostgreSQL.
+### 🔹 4. Alert System
+- 🚨 High-risk events trigger emergency alerts  
+
+---
+
+### 🔹 5. Storage
+- Uses in-memory storage (for prototype)
+- Can be extended to:
+  - Supabase  
+  - PostgreSQL  
+
+---
+
+## 🧠 System Capabilities (Conceptual Vision)
+
+This prototype represents a simplified version of a larger AI system that could include:
+
+- Multi-modal data processing (text, images, satellite)
+- Geo-mapping and visualization
+- Real-time disaster monitoring
+- Integration with emergency services
+- Edge AI deployment for remote regions
+
+---
+
+## 🏗️ Project Structure
+

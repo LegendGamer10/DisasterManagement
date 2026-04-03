@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI-Based Disaster Detection Prototype</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>AI-Based Disaster Detection Prototype</h1>
+      <p>Hackathon demo: text + optional image + location-based rapid screening.</p>
+    </header>
+
+    <section class="card form-card">
+      <h2>Submit Report</h2>
+      <form id="reportForm">
+        <label for="reportText">Disaster Report</label>
+        <textarea id="reportText" placeholder="Example: Rising water levels near river and nearby homes flooded." required></textarea>
+
+        <label for="imageUpload">Optional Image</label>
+        <input id="imageUpload" type="file" accept="image/*" />
+
+        <label for="locationInput">Location</label>
+        <input id="locationInput" type="text" placeholder="City, address, or landmark" required />
+
+        <button type="submit">Analyze Report</button>
+      </form>
+    </section>
+
+    <section class="card result-card" id="resultCard" hidden>
+      <h2>Detection Result</h2>
+      <div class="result-grid">
+        <p><strong>Disaster Type:</strong> <span id="disasterType">-</span></p>
+        <p><strong>Risk Level:</strong> <span id="riskLevel" class="risk-badge">-</span></p>
+        <p><strong>Recommended Action:</strong> <span id="recommendedAction">-</span></p>
+      </div>
+      <p id="alertBanner" class="alert" hidden>Emergency Alert Generated</p>
+      <div id="uploadInfo" class="upload-info"></div>
+    </section>
+
+    <section class="card map-card">
+      <h2>Affected Area Map</h2>
+      <div id="map"></div>
+    </section>
+
+    <section class="card dashboard-card">
+      <h2>Reports Dashboard</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Report</th>
+            <th>Type</th>
+            <th>Risk</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="reportTableBody">
+          <tr>
+            <td colspan="4" class="empty-row">No reports submitted yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="app.js"></script>
+</body>
+</html>
