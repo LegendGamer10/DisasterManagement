@@ -7,7 +7,7 @@ const router = express.Router();
 const reports = [];
 
 router.post('/analyze', async (req, res) => {
-  const { text } = req.body;
+  const { text, location, latitude, longitude, image_name } = req.body;
 
   if (!text || typeof text !== 'string') {
     return res.status(400).json({ error: 'Field "text" is required.' });
@@ -22,6 +22,10 @@ router.post('/analyze', async (req, res) => {
       risk_level: analysis.risk_level,
       confidence: analysis.confidence,
       summary: analysis.summary,
+      location: location || null,
+      latitude: typeof latitude === 'number' ? latitude : null,
+      longitude: typeof longitude === 'number' ? longitude : null,
+      image_name: image_name || null,
       timestamp: new Date().toISOString()
     };
 

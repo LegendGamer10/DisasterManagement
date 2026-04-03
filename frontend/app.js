@@ -1,23 +1,32 @@
 const form = document.getElementById('analyzeForm');
 const reportInput = document.getElementById('reportInput');
+const imageInput = document.getElementById('imageInput');
+const imageInfo = document.getElementById('imageInfo');
+const locationInput = document.getElementById('locationInput');
 const resultCard = document.getElementById('resultCard');
 const disasterTypeEl = document.getElementById('disasterType');
 const riskLevelEl = document.getElementById('riskLevel');
 const confidenceEl = document.getElementById('confidence');
 const summaryEl = document.getElementById('summary');
+const mappedLocationEl = document.getElementById('mappedLocation');
 const alertBanner = document.getElementById('alertBanner');
 const reportsTableBody = document.getElementById('reportsTableBody');
 
-// Simple helper for badge coloring.
+const map = L.map('map').setView([20.5937, 78.9629], 4);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+let marker = null;
+
 function applyRiskStyle(riskLevel) {
   riskLevelEl.classList.remove('risk-low', 'risk-medium', 'risk-high');
-  const normalized = riskLevel.toLowerCase();
-  riskLevelEl.classList.add(`risk-${normalized}`);
+  riskLevelEl.classList.add(`risk-${riskLevel.toLowerCase()}`);
 }
 
 function renderReports(reports) {
   if (!reports.length) {
-    reportsTableBody.innerHTML = '<tr><td colspan="5" class="empty">No reports yet.</td></tr>';
+    reportsTableBody.innerHTML = '<tr><td colspan="7" class="empty">No reports yet.</td></tr>';
     return;
   }
 
@@ -31,9 +40,29 @@ function renderReports(reports) {
         <td>${report.disaster_type}</td>
         <td><span class="badge ${riskClass}">${report.risk_level}</span></td>
         <td>${report.confidence}</td>
+        <td>${report.location || '-'}</td>
+        <td>${report.image_name || '-'}</td>
       </tr>`;
     })
     .join('');
+}
+
+async function geocodeLocation(location) {
+  const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`);
+  if (!response.ok) {
+    throw new Error('Unable to geocode location');
+  }
+
+  const data = await response.json();
+  if (!data.length) {
+    throw new Error('Location not found. Please be more specific.');
+  }
+
+  return {
+    display_name: data[0].display_name,
+    lat: Number(data[0].lat),
+    lon: Number(data[0].lon)
+  };
 }
 
 async function loadReports() {
@@ -42,16 +71,35 @@ async function loadReports() {
   renderReports(reports);
 }
 
+imageInput.addEventListener('change', () => {
+  imageInfo.textContent = imageInput.files[0] ? `Selected image: ${imageInput.files[0].name}` : '';
+});
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
   const text = reportInput.value.trim();
-  if (!text) return;
+  const locationQuery = locationInput.value.trim();
+  if (!text || !locationQuery) return;
+
+  let geo = null;
+  try {
+    geo = await geocodeLocation(locationQuery);
+  } catch (error) {
+    alert(error.message);
+    return;
+  }
 
   const response = await fetch('/api/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text })
+    body: JSON.stringify({
+      text,
+      location: geo.display_name,
+      latitude: geo.lat,
+      longitude: geo.lon,
+      image_name: imageInput.files[0] ? imageInput.files[0].name : null
+    })
   });
 
   const result = await response.json();
@@ -60,12 +108,18 @@ form.addEventListener('submit', async (event) => {
   riskLevelEl.textContent = result.risk_level;
   confidenceEl.textContent = result.confidence;
   summaryEl.textContent = result.summary;
+  mappedLocationEl.textContent = geo.display_name;
 
   applyRiskStyle(result.risk_level);
   resultCard.hidden = false;
   alertBanner.hidden = result.risk_level !== 'High';
 
-  reportInput.value = '';
+  if (marker) marker.remove();
+  marker = L.marker([geo.lat, geo.lon]).addTo(map).bindPopup(geo.display_name).openPopup();
+  map.setView([geo.lat, geo.lon], 10);
+
+  form.reset();
+  imageInfo.textContent = '';
   await loadReports();
 });
 

@@ -1,4 +1,5 @@
 const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
+const localConfig = require('../config/local');
 
 // Rule-based fallback if AI call fails for any reason.
 function fallbackAnalyze(text) {
@@ -28,9 +29,9 @@ function fallbackAnalyze(text) {
 }
 
 async function analyzeWithAI(text) {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY || localConfig.OPENAI_API_KEY;
   if (!apiKey) {
-    throw new Error('OPENAI_API_KEY not configured');
+    throw new Error('OPENAI_API_KEY not configured in .env or backend/config/local.js');
   }
 
   const prompt = `Analyze the following text and determine if it describes a disaster.\n\nReturn JSON with:\n- disaster_type (any relevant disaster)\n- risk_level (Low, Medium, High)\n- confidence (percentage)\n- summary (short explanation)\n\nText: "${text}"`;

@@ -1,80 +1,94 @@
 # AI-Powered Disaster Detection System (Full-Stack Prototype)
 
-## 🚀 Overview
+This project is a production-like hackathon prototype with this flow:
 
-Manual disaster analysis is often slow and inefficient.  
-This project presents a **full-stack AI-powered disaster detection system prototype** that combines intelligent text analysis, backend processing, and real-time alerting.
+**Frontend (HTML/CSS/JS) → Backend (Node.js + Express) → AI API (OpenAI) → Storage (in-memory reports)**
 
-It is designed as a **hackathon-ready implementation** of a scalable real-world system.
+## Project Structure
 
----
+```
+/frontend
+  index.html
+  style.css
+  app.js
 
-## 🏗️ Architecture
+/backend
+  server.js
+  routes/
+    analyze.js
+  services/
+    ai.js
+```
 
-Frontend (HTML/CSS/JS) → Backend (Node.js + Express) → AI API → Storage
+## Features
 
----
+- Text report input with AI-based analysis.
+- Optional image upload (filename captured in dashboard for demo tracking).
+- Location input with live geocoding + map marker display.
+- Backend API endpoint: `POST /api/analyze` with `{ "text": "..." }`.
+- Structured response:
+  - `disaster_type`
+  - `risk_level` (`Low`, `Medium`, `High`)
+  - `confidence`
+  - `summary`
+- Fallback rule-based classification when AI is unavailable.
+- Dashboard listing previous reports with timestamps, location, and image name.
+- Emergency alert banner for high-risk reports.
 
-## 🎯 Objectives
+## Setup
 
-- Detect disasters faster using AI-based analysis  
-- Process unstructured text inputs intelligently  
-- Provide risk classification and alerts  
-- Demonstrate a scalable architecture for real-world deployment  
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
----
+2. Add environment variables:
+   ```bash
+   cp .env.example .env
+   ```
 
-## ⚙️ Features
+3. Open `.env` and set your real key:
+   ```env
+   OPENAI_API_KEY=your_real_openai_api_key
+   PORT=3000
+   ```
 
-### 🔹 1. AI-Based Disaster Detection
-- Accepts natural language input  
-- Detects **any disaster type (not keyword-limited)**  
-- Returns:
-  - Disaster Type  
-  - Risk Level (Low / Medium / High)  
-  - Confidence Score  
-  - AI-generated Summary  
+   **OR**, if `.env` is not working in your runtime, place your key directly in:
+   - `backend/config/local.js`
+   - Set `OPENAI_API_KEY: 'your_real_openai_api_key'`
 
----
+4. Start server:
+   ```bash
+   npm start
+   ```
 
-### 🔹 2. Backend API
-- Endpoint: `POST /api/analyze`
-- Processes input using AI
-- Includes fallback rule-based logic
+5. Open:
+   - `http://localhost:3000`
 
----
+> If `OPENAI_API_KEY` is missing/invalid in both `.env` and `backend/config/local.js`, the app still works but returns fallback analysis.
 
-### 🔹 3. Dashboard
-- Displays previous reports  
-- Shows timestamps and results  
-- Simulates real-time monitoring system  
+## API
 
----
+### `POST /api/analyze`
+Request:
+```json
+{ "text": "Large wildfire is spreading quickly toward nearby homes." }
+```
 
-### 🔹 4. Alert System
-- 🚨 High-risk events trigger emergency alerts  
+Response:
+```json
+{
+  "disaster_type": "Wildfire",
+  "risk_level": "High",
+  "confidence": "92%",
+  "summary": "Rapidly spreading wildfire threatening residential areas."
+}
+```
 
----
+### `GET /api/reports`
+Returns previously analyzed reports stored in memory for this demo.
 
-### 🔹 5. Storage
-- Uses in-memory storage (for prototype)
-- Can be extended to:
-  - Supabase  
-  - PostgreSQL  
+## Notes
 
----
-
-## 🧠 System Capabilities (Conceptual Vision)
-
-This prototype represents a simplified version of a larger AI system that could include:
-
-- Multi-modal data processing (text, images, satellite)
-- Geo-mapping and visualization
-- Real-time disaster monitoring
-- Integration with emergency services
-- Edge AI deployment for remote regions
-
----
-
-## 🏗️ Project Structure
-
+- In-memory storage resets when server restarts.
+- To make this fully persistent, replace in-memory storage with Supabase/PostgreSQL.
