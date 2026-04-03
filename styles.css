@@ -1,0 +1,163 @@
+:root {
+  --bg: #f4f7fb;
+  --card: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --primary: #2563eb;
+  --low: #16a34a;
+  --medium: #facc15;
+  --high: #dc2626;
+  --border: #d1d5db;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.25rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.header {
+  text-align: center;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+h1,
+h2 {
+  margin-top: 0;
+}
+
+form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+textarea,
+input,
+button {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 1rem;
+}
+
+textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+button {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+button:hover {
+  filter: brightness(0.95);
+}
+
+.result-grid {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.risk-badge {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  color: #111827;
+  font-weight: 700;
+}
+
+.risk-low {
+  background: var(--low);
+  color: #fff;
+}
+
+.risk-medium {
+  background: var(--medium);
+}
+
+.risk-high {
+  background: var(--high);
+  color: #fff;
+}
+
+.alert {
+  margin-top: 0.8rem;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 0.7rem;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.upload-info {
+  margin-top: 0.6rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+#map {
+  width: 100%;
+  height: 320px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  padding: 0.65rem;
+  vertical-align: top;
+}
+
+th {
+  background: #eff6ff;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.empty-row {
+  text-align: center;
+  color: var(--muted);
+}
+
+@media (max-width: 700px) {
+  .container {
+    padding: 0.75rem;
+  }
+}
