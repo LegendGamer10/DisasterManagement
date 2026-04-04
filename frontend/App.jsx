@@ -831,7 +831,7 @@ function App() {
       {/* Header */}
       <header style={S.header}>
         <div style={S.headerLeft}>
-          <span style={S.logo}>ANTIGRAVITY</span>
+          <span style={S.logo}>GuardianAI</span>
           <span style={S.tagline}>Real-Time Disaster Intelligence</span>
         </div>
         <div style={S.headerRight}>
@@ -847,7 +847,7 @@ function App() {
               fontSize: '10px', fontWeight: 600, letterSpacing: '1px',
               color: '#fbbf24',
             }}>
-              DEMO MODE
+              Simulation
             </div>
           )}
           <span style={S.clock}>{utcTime}</span>
