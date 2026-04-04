@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Submit Report — Disaster Watch</title>
+  <meta name="description" content="Submit a disaster incident report for AI-powered risk analysis." />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html">Disaster Watch</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="report.html" aria-current="page">Report</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="live-map.html">Live Map</a>
+    </nav>
+  </header>
+
+  <!-- Alert toast container -->
+  <div id="toastContainer" style="position:fixed;top:76px;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;max-width:380px;"></div>
+
+  <main class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
+
+      <!-- Left: Form -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+        <!-- AI Status -->
+        <div class="ai-status-bar fade-in" id="aiStatusBar">
+          <div class="ai-dot" id="aiDot"></div>
+          <span id="aiStatusText" style="flex:1;font-size:0.83rem;color:var(--text-muted);">Checking local AI…</span>
+          <button class="btn btn-sm" id="checkAiBtn" type="button">Re-check</button>
+        </div>
+
+        <!-- Report Form -->
+        <div class="card fade-in">
+          <h1 style="font-size:1.4rem;font-weight:800;margin-bottom:1.25rem;">Submit Incident Report</h1>
+
+          <form id="analyzeForm">
+            <div class="form-group">
+              <label for="reportInput">Describe the incident *</label>
+              <textarea id="reportInput" required placeholder="e.g. Severe flooding near the river banks — roads submerged, residents stranded..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Optional image</label>
+              <div class="file-drop" id="fileDrop">
+                <input type="file" id="imageInput" accept="image/*" />
+                <div class="file-drop-icon">📎</div>
+                <p>Drag & drop or <strong>click to select</strong> an image</p>
+                <p id="fileNameDisplay" style="color:var(--accent);margin-top:0.3rem;"></p>
+              </div>
+              <div id="imagePreviewWrap" style="display:none;margin-top:0.75rem;">
+                <img id="imagePreview" style="max-height:160px;border-radius:var(--radius-sm);border:1px solid var(--glass-border);" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="locationInput">Location *</label>
+              <input id="locationInput" type="text" placeholder="City, district, or landmark" required />
+            </div>
+
+            <button type="submit" id="submitBtn">
+              <span id="submitLabel">🔍 Analyze Report</span>
+              <span class="spinner" id="submitSpinner" style="display:none;"></span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Mini map -->
+        <div class="card fade-in">
+          <h2 style="font-size:1rem;font-weight:700;margin-bottom:0.75rem;">📍 Location Map</h2>
+          <div id="map"></div>
+        </div>
+      </div>
+
+      <!-- Right: Results -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+        <!-- Placeholder -->
+        <div class="card fade-in" id="emptyState" style="text-align:center;padding:3rem 2rem;">
+          <div style="font-size:3rem;margin-bottom:1rem;">🛰️</div>
+          <h2 style="font-size:1.1rem;color:var(--text-muted);font-weight:500;">Submit a report to see AI analysis</h2>
+          <p class="helper" style="margin-top:0.5rem;">The local AI will classify the disaster, assess risk, and recommend actions.</p>
+        </div>
+
+        <!-- Result card (hidden until submission) -->
+        <div class="card fade-in" id="resultCard" style="display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+            <h2 style="font-size:1.1rem;font-weight:800;">Analysis Result</h2>
+            <span id="sourceTag" class="badge badge-watch" style="font-size:0.68rem;"></span>
+          </div>
+
+          <!-- Alert banner -->
+          <div class="alert-banner high" id="alertBanner" style="display:none;margin-bottom:1rem;">
+            🚨 <strong>Emergency Alert</strong> — Immediate action required
+          </div>
+
+          <!-- Core fields -->
+          <div class="result-grid" style="margin-bottom:1rem;">
+            <div class="result-field">
+              <label>Disaster Type</label>
+              <div class="val" id="disasterType">—</div>
+            </div>
+            <div class="result-field">
+              <label>Risk Level</label>
+              <div class="val"><span id="riskLevel" class="badge">—</span></div>
+            </div>
+            <div class="result-field">
+              <label>AI Confidence</label>
+              <div class="val" id="confidence">—</div>
+            </div>
+            <div class="result-field">
+              <label>Affected Radius</label>
+              <div class="val" id="affectedRadius">—</div>
+            </div>
+          </div>
+
+          <!-- Severity meter -->
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label>Severity Score</label>
+            <div class="severity-meter">
+              <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.3rem;">
+                <span>Low</span><span id="severityVal">0</span><span>Critical</span>
+              </div>
+              <div class="severity-bar-track">
+                <div class="severity-bar-fill" id="severityBar" style="width:0%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <div style="background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);padding:0.75rem 1rem;margin-bottom:1rem;">
+            <label style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">AI Summary</label>
+            <p id="summary" style="margin-top:0.3rem;font-size:0.88rem;line-height:1.5;"></p>
+          </div>
+
+          <!-- Recommended actions -->
+          <div>
+            <label style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Recommended Actions</label>
+            <ul class="actions-list" id="actionsList" style="margin-top:0.6rem;"></ul>
+          </div>
+        </div>
+
+        <!-- Nearby live events -->
+        <div class="card fade-in" id="nearbyCard" style="display:none;">
+          <h2 style="font-size:1rem;font-weight:700;margin-bottom:0.75rem;">🛰️ Nearby Real-World Events</h2>
+          <p class="helper" style="margin-bottom:0.75rem;">Live data from NASA EONET &amp; USGS near this location</p>
+          <div id="nearbyEventsList" class="nearby-events"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="common.js"></script>
+  <script src="report.js"></script>
+</body>
+</html>

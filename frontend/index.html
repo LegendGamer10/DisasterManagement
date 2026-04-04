@@ -3,72 +3,177 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Disaster Detection System</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <link rel="stylesheet" href="style.css" />
+  <title>ANTIGRAVITY — Real-Time Disaster Intelligence</title>
+  <meta name="description" content="ANTIGRAVITY: AI-Powered Real-Time Disaster Detection & Intelligence System. Live monitoring, risk assessment, and prevention guidance." />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body, #root {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0f1e;
+      color: #e8f4ff;
+    }
+
+    /* ========== ANIMATED BACKGROUND MESH ========== */
+    @keyframes meshDrift {
+      0%   { background-position: 0% 0%, 100% 100%, 50% 50%; }
+      25%  { background-position: 30% 70%, 70% 30%, 20% 80%; }
+      50%  { background-position: 100% 100%, 0% 0%, 80% 20%; }
+      75%  { background-position: 70% 30%, 30% 70%, 50% 50%; }
+      100% { background-position: 0% 0%, 100% 100%, 50% 50%; }
+    }
+
+    @keyframes hueShift {
+      0%   { filter: hue-rotate(0deg); }
+      50%  { filter: hue-rotate(15deg); }
+      100% { filter: hue-rotate(0deg); }
+    }
+
+    .bg-mesh {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 40%, rgba(30, 10, 80, 0.7), transparent),
+        radial-gradient(ellipse 70% 50% at 80% 20%, rgba(13, 27, 42, 0.9), transparent),
+        radial-gradient(ellipse 90% 70% at 50% 80%, rgba(26, 16, 64, 0.6), transparent);
+      background-size: 200% 200%, 200% 200%, 200% 200%;
+      animation: meshDrift 25s ease-in-out infinite alternate, hueShift 20s ease-in-out infinite;
+    }
+
+    /* ========== FLOATING ORBS ========== */
+    @keyframes orbFloat1 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(120px,-80px) scale(1.1); } 66% { transform: translate(-60px,100px) scale(0.9); } }
+    @keyframes orbFloat2 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(-150px,60px) scale(1.15); } 66% { transform: translate(80px,-120px) scale(0.85); } }
+    @keyframes orbFloat3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(100px,100px) scale(1.1); } }
+    @keyframes orbFloat4 { 0%,100% { transform: translate(0,0); } 33% { transform: translate(-80px,-60px); } 66% { transform: translate(60px,80px); } }
+    @keyframes orbFloat5 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-120px,40px); } }
+
+    .orb {
+      position: fixed; border-radius: 50%; z-index: 0; pointer-events: none;
+    }
+    .orb-1 { width: 400px; height: 400px; top: 10%; left: 5%; background: radial-gradient(circle, rgba(99,102,241,0.25), transparent 70%); filter: blur(100px); animation: orbFloat1 30s ease-in-out infinite; }
+    .orb-2 { width: 350px; height: 350px; top: 60%; right: 10%; background: radial-gradient(circle, rgba(139,92,246,0.2), transparent 70%); filter: blur(90px); animation: orbFloat2 28s ease-in-out infinite; }
+    .orb-3 { width: 300px; height: 300px; top: 30%; right: 30%; background: radial-gradient(circle, rgba(34,211,238,0.2), transparent 70%); filter: blur(110px); animation: orbFloat3 32s ease-in-out infinite; }
+    .orb-4 { width: 450px; height: 450px; bottom: 5%; left: 30%; background: radial-gradient(circle, rgba(20,184,166,0.15), transparent 70%); filter: blur(120px); animation: orbFloat4 26s ease-in-out infinite; }
+    .orb-5 { width: 280px; height: 280px; top: 5%; right: 5%; background: radial-gradient(circle, rgba(99,102,241,0.18), transparent 70%); filter: blur(80px); animation: orbFloat5 34s ease-in-out infinite; }
+
+    /* ========== GRID OVERLAY ========== */
+    .grid-overlay {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    /* ========== SCAN LINE ========== */
+    @keyframes scanSweep {
+      0%   { top: -2px; opacity: 0; }
+      5%   { opacity: 1; }
+      95%  { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+    .scan-line {
+      position: fixed; left: 0; right: 0; height: 2px; z-index: 0; pointer-events: none;
+      background: linear-gradient(90deg, transparent 0%, rgba(34,211,238,0.4) 30%, rgba(34,211,238,0.8) 50%, rgba(34,211,238,0.4) 70%, transparent 100%);
+      animation: scanSweep 20s linear infinite;
+      box-shadow: 0 0 20px rgba(34,211,238,0.3);
+    }
+
+    /* ========== CUSTOM SCROLLBAR ========== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+    /* ========== MARKER PULSE ========== */
+    @keyframes markerPulse {
+      0%   { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+      50%  { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    }
+    .pulse-marker {
+      position: absolute; width: 24px; height: 24px; border-radius: 50%;
+      border: 2px solid currentColor;
+      animation: markerPulse 2s ease-out infinite;
+      pointer-events: none;
+      left: 50%; top: 50%;
+    }
+
+    /* ========== LEAFLET OVERRIDES ========== */
+    .leaflet-container { background: #0d1b2a !important; border-radius: 12px; }
+    .leaflet-control-zoom a { background: rgba(255,255,255,0.08) !important; color: #e8f4ff !important; border: 1px solid rgba(255,255,255,0.1) !important; backdrop-filter: blur(10px); }
+    .leaflet-control-zoom a:hover { background: rgba(255,255,255,0.15) !important; }
+    .leaflet-popup-content-wrapper { background: rgba(13,27,42,0.9) !important; color: #e8f4ff !important; border: 1px solid rgba(255,255,255,0.1) !important; backdrop-filter: blur(20px); border-radius: 12px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important; }
+    .leaflet-popup-tip { background: rgba(13,27,42,0.9) !important; }
+    .leaflet-popup-close-button { color: rgba(232,244,255,0.6) !important; }
+    .leaflet-control-attribution { display: none !important; }
+
+    /* ========== PANEL ENTRANCE ========== */
+    @keyframes panelEnter {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========== ALERT STRIPE ========== */
+    @keyframes alertStripe {
+      0%   { background-position: 0 0; }
+      100% { background-position: 40px 0; }
+    }
+
+    /* ========== PREVENTION SWAP ========== */
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========== COUNTING ANIMATION ========== */
+    @keyframes countFadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* ========== LIVE DOT ========== */
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    /* ========== SEVERITY GAUGE ========== */
+    @keyframes gaugeGrow {
+      from { width: 0%; }
+    }
+  </style>
 </head>
 <body>
-  <main class="container">
-    <h1>AI-Powered Disaster Detection</h1>
+  <!-- Background layers -->
+  <div class="bg-mesh"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="orb orb-5"></div>
+  <div class="grid-overlay"></div>
+  <div class="scan-line"></div>
 
-    <section class="card">
-      <h2>Analyze New Report</h2>
-      <div class="status-row">
-        <button id="checkAiBtn" type="button">Check AI Connection</button>
-        <span id="aiStatusText" class="helper">AI status not checked yet.</span>
-      </div>
-      <form id="analyzeForm">
-        <label for="reportInput">Disaster Report Text</label>
-        <textarea id="reportInput" required placeholder="Describe what is happening..."></textarea>
+  <!-- React root -->
+  <div id="root"></div>
 
-        <label for="imageInput">Optional Image</label>
-        <input id="imageInput" type="file" accept="image/*" />
+  <!-- Dependencies via CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin></script>
 
-        <label for="locationInput">Location</label>
-        <input id="locationInput" type="text" placeholder="City, address, or landmark" required />
-
-        <button type="submit">Submit</button>
-      </form>
-      <p id="imageInfo" class="helper"></p>
-    </section>
-
-    <section class="card" id="resultCard" hidden>
-      <h2>Analysis Result</h2>
-      <p><strong>Disaster Type:</strong> <span id="disasterType">-</span></p>
-      <p><strong>Risk Level:</strong> <span id="riskLevel" class="badge">-</span></p>
-      <p><strong>Confidence Score:</strong> <span id="confidence">-</span></p>
-      <p><strong>AI-generated Summary:</strong> <span id="summary">-</span></p>
-      <p><strong>Mapped Location:</strong> <span id="mappedLocation">-</span></p>
-      <p id="alertBanner" class="alert" hidden>🚨 Emergency Alert Generated</p>
-    </section>
-
-    <section class="card">
-      <h2>Incident Map</h2>
-      <div id="map"></div>
-    </section>
-
-    <section class="card">
-      <h2>Previous Reports Dashboard</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Report</th>
-            <th>Type</th>
-            <th>Risk</th>
-            <th>Confidence</th>
-            <th>Location</th>
-            <th>Image</th>
-          </tr>
-        </thead>
-        <tbody id="reportsTableBody">
-          <tr><td colspan="7" class="empty">No reports yet.</td></tr>
-        </tbody>
-      </table>
-    </section>
-  </main>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="app.js"></script>
+  <!-- App -->
+  <script type="text/babel" data-type="module" src="App.jsx"></script>
 </body>
 </html>

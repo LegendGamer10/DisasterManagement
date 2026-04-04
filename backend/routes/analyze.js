@@ -1,47 +1,55 @@
-const express = require('express');
-const { analyzeDisasterText, getAIStatus } = require('../services/ai');
+/**
+ * backend/routes/analyze.js
+ *
+ * POST /api/analyze  — classify a disaster report via ML model
+ * GET  /api/ai-status — check if the Python API is reachable
+ */
 
+const express = require("express");
 const router = express.Router();
+const { analyzeText, checkStatus } = require("../services/ai");
 
-// In-memory report store for prototype mode.
+// In-memory report store (replace with DB for persistence)
 const reports = [];
 
-router.post('/analyze', async (req, res) => {
-  const { text, location, latitude, longitude, image_name } = req.body;
+// POST /api/analyze
+router.post("/analyze", async (req, res) => {
+  const { text, location, imageName } = req.body;
 
-  if (!text || typeof text !== 'string') {
-    return res.status(400).json({ error: 'Field "text" is required.' });
+  if (!text || typeof text !== "string" || !text.trim()) {
+    return res.status(400).json({ error: "Field 'text' is required." });
   }
 
   try {
-    const analysis = await analyzeDisasterText(text);
+    const analysis = await analyzeText(text.trim());
 
-    const record = {
-      text,
-      disaster_type: analysis.disaster_type,
-      risk_level: analysis.risk_level,
-      confidence: analysis.confidence,
-      summary: analysis.summary,
+    const report = {
+      id: Date.now(),
+      timestamp: new Date().toISOString(),
+      text: text.trim(),
       location: location || null,
-      latitude: typeof latitude === 'number' ? latitude : null,
-      longitude: typeof longitude === 'number' ? longitude : null,
-      image_name: image_name || null,
-      timestamp: new Date().toISOString()
+      imageName: imageName || null,
+      ...analysis,
     };
 
-    reports.unshift(record);
-    return res.json(analysis);
-  } catch (error) {
-    return res.status(500).json({ error: 'Unable to analyze report right now.' });
+    reports.push(report);
+
+    return res.json(report);
+  } catch (err) {
+    console.error("[analyze route] Unexpected error:", err);
+    return res.status(500).json({ error: "Internal server error during analysis." });
   }
 });
 
-router.get('/reports', (req, res) => {
-  res.json(reports);
+// GET /api/reports
+router.get("/reports", (_req, res) => {
+  // Return newest first
+  res.json([...reports].reverse());
 });
 
-router.get('/ai-status', async (req, res) => {
-  const status = await getAIStatus();
+// GET /api/ai-status
+router.get("/ai-status", async (_req, res) => {
+  const status = await checkStatus();
   res.json(status);
 });
 
